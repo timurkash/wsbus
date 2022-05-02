@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package kratos.api;
+
+option go_package = "github.com/timurkash/wsbus/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Bus bus = 2;
+}
+
+message Server {
+  message Http {
+    string addr = 1;
+  }
+  Http http = 1;
+}
+
+message Bus {
+  Nats nats = 1;
+}
+
+message Nats {
+  string url = 1;
+}

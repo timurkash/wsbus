@@ -1,0 +1,7 @@
+server:
+  http:
+    addr: :8080
+    timeout: 1s
+bus:
+  nats:
+    url: nats://127.0.0.1:4222

@@ -1,3 +1,5 @@
+CONF_PROTO_FILES:=$(shell find internal/conf -name *.proto)
+
 create-network:
 	@docker network create nats
 	@docker network ls
@@ -10,3 +12,9 @@ nats-run:
 	-p 8222:8222 \
 	nats \
 	--http_port 8222
+
+config:
+	@protoc \
+		--proto_path=. \
+ 		--go_out=paths=source_relative:. \
+		$(CONF_PROTO_FILES)
