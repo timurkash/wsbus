@@ -5,12 +5,13 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/timurkash/wsbus/internal/conf"
 	"github.com/timurkash/wsbus/internal/hub"
+	"github.com/timurkash/wsbus/internal/message"
 	"log"
 )
 
 type Nats struct {
-	nc  *nats.Conn
 	hub *hub.Hub
+	nc  *nats.Conn
 }
 
 func NewNats(confNats *conf.Nats) (Bus, error) {
@@ -68,7 +69,16 @@ func (n *Nats) Subscribe(subject string) error {
 		if n.hub == nil {
 			panic("n.hub is nil")
 		}
-		n.hub.FromBus <- msg.Data
+		message := &message.Message{}
+		if err := message.Get(msg.Data); err != nil {
+			log.Println(err)
+			return
+		}
+		if err := message.Check(); err != nil {
+			log.Println(err)
+			return
+		}
+		n.hub.ToWs <- msg.Data
 	}); err != nil {
 		return err
 	}

@@ -23,7 +23,7 @@ message Ws {
   uint32 max_message_size = 1;
   google.protobuf.Duration write_wait = 2;
   google.protobuf.Duration pong_wait = 3;
-
+  google.protobuf.Duration pingPeriod = 4;
 }
 
 message Bus {

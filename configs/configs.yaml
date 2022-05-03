@@ -9,3 +9,8 @@ bus:
     display_timestamps: false
     total_wait: 600s
     reconnect_delay: 1s
+ws:
+  max_message_size: 512
+  write_wait: 10s
+  pong_wait: 60s
+  ping_period: 54s
