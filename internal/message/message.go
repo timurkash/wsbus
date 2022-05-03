@@ -16,6 +16,14 @@ func (m *Message) Get(bytes []byte) error {
 	if err := json.Unmarshal(bytes, m); err != nil {
 		return err
 	}
+	return m.Check()
+}
+
+func (m *Message) Bytes() ([]byte, error) {
+	return json.Marshal(m)
+}
+
+func (m *Message) Check() error {
 	if m.MessageType == "" {
 		return errors.New("messageType required")
 	}
@@ -23,8 +31,4 @@ func (m *Message) Get(bytes []byte) error {
 		return errors.New("message required")
 	}
 	return nil
-}
-
-func (m *Message) Bytes() ([]byte, error) {
-	return json.Marshal(m)
 }

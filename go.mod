@@ -4,7 +4,9 @@ go 1.18
 
 require (
 	github.com/go-kratos/kratos/v2 v2.2.1
+	github.com/gorilla/websocket v1.5.0
 	github.com/nats-io/nats.go v1.14.0
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 	google.golang.org/protobuf v1.28.0
 )
 

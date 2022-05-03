@@ -3,11 +3,14 @@ package bus
 import (
 	"errors"
 	"github.com/timurkash/wsbus/internal/conf"
+	"github.com/timurkash/wsbus/internal/hub"
 )
 
 type Bus interface {
-	WriteToBus(message []byte) error
-	ReadFromBus() ([]byte, error)
+	WriteTo(subject string, message []byte) error
+	Subscribe(subject string) error
+	Close()
+	SetHub(hub *hub.Hub)
 }
 
 func NewBus(confBus *conf.Bus) (Bus, error) {

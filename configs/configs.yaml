@@ -3,5 +3,9 @@ server:
     addr: :8080
     timeout: 1s
 bus:
+  subject: subject
   nats:
     url: nats://127.0.0.1:4222
+    display_timestamps: false
+    total_wait: 600s
+    reconnect_delay: 1s

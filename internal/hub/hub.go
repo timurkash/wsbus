@@ -1,38 +1,61 @@
 package hub
 
 import (
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/gorilla/websocket"
 	"github.com/timurkash/wsbus/internal/bus"
-	"golang.org/x/net/websocket"
+	"github.com/timurkash/wsbus/internal/conf"
 )
 
 type Hub struct {
+	confBus *conf.Bus
+	confWs  *conf.Ws
+
 	conn    *websocket.Conn
-	bus     *bus.Bus
-	toBus   chan []byte
-	fromBus chan []byte
+	SetConn chan *websocket.Conn
+
+	busClient bus.Bus
+
+	ToBus   chan []byte
+	FromBus chan []byte
 }
 
 const BufferSize = 256
 
-func NewHub(bus *bus.Bus) *Hub {
-	return &Hub{
-		bus:     bus,
-		toBus:   make(chan []byte, BufferSize),
-		fromBus: make(chan []byte, BufferSize),
+func NewHub(confBus *conf.Bus, confWs *conf.Ws) (*Hub, error) {
+	busClient, err := bus.NewBus(confBus)
+	if err != nil {
+		return nil, err
 	}
+	hub := &Hub{
+		busClient: busClient,
+		confBus:   confBus,
+		confWs:    confWs,
+		SetConn:   make(chan *websocket.Conn),
+		ToBus:     make(chan []byte, BufferSize),
+		FromBus:   make(chan []byte, BufferSize),
+	}
+	busClient.SetHub(hub)
+	return hub, nil
 }
 
-func (h *Hub) SetConn(conn *websocket.Conn) {
-	h.conn = conn
+func (h *Hub) CloseBus() {
+	h.busClient.Close()
 }
 
 func (h *Hub) Run() {
 	for {
 		select {
-		case <-h.toBus:
-
-		case <-h.fromBus:
-
+		case conn := <-h.SetConn:
+			h.conn = conn
+		case msg := <-h.ToBus:
+			if err := h.busClient.WriteTo(h.confBus.Subject, msg); err != nil {
+				log.Error(err)
+			}
+		case msg := <-h.FromBus:
+			if err := h.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+				log.Error(err)
+			}
 		}
 	}
 }

@@ -9,6 +9,7 @@ import "google/protobuf/duration.proto";
 message Bootstrap {
   Server server = 1;
   Bus bus = 2;
+  Ws ws = 3;
 }
 
 message Server {
@@ -18,10 +19,23 @@ message Server {
   Http http = 1;
 }
 
+message Ws {
+  uint32 max_message_size = 1;
+  google.protobuf.Duration write_wait = 2;
+  google.protobuf.Duration pong_wait = 3;
+
+}
+
 message Bus {
-  Nats nats = 1;
+  string subject = 1;
+  Nats nats = 2;
 }
 
 message Nats {
-  string url = 1;
+  string name = 1;
+  string url = 2;
+  string creds = 3;
+  bool display_timestamps = 4;
+  google.protobuf.Duration total_wait = 5;
+  google.protobuf.Duration reconnect_delay = 6;
 }

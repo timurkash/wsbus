@@ -2,16 +2,13 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
-	"github.com/timurkash/wsbus/internal/bus"
 	"github.com/timurkash/wsbus/internal/conf"
+	"github.com/timurkash/wsbus/internal/hub"
+	"github.com/timurkash/wsbus/internal/ws"
 	"log"
-)
-
-const (
-	Name = "Ws-NATS hub"
+	"net/http"
 )
 
 var (
@@ -42,11 +39,16 @@ func main() {
 	if err := c.Scan(&bootstrap); err != nil {
 		panic(err)
 	}
-	fmt.Println(bootstrap)
-	bus, err := bus.NewBus(bootstrap.Bus)
+	hub, err := hub.NewHub(bootstrap.Bus, bootstrap.Ws)
 	if err != nil {
 		panic(err)
 	}
-	bus = bus
-
+	defer hub.CloseBus()
+	go hub.Run()
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		ws.Serve(hub, w, r)
+	})
+	if err := http.ListenAndServe(bootstrap.Server.Http.Addr, nil); err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
